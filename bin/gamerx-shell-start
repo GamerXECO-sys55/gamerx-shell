@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# GamerX OS · unified Hyprland-session startup
+#
+# Why this exists:
+# - Hyprland's `exec-once` is fragile and silent when commands fail.
+# - We need ONE place where the entire UI is brought up, with logging, retries,
+#   and graceful fallbacks.
+# - Live ISO and installed system run the same script; live mode is detected
+#   via /etc/gamerx-live marker.
+#
+# Logs: ~/.cache/gamerx-shell-start.log (overwritten each session)
+
+set +e  # never abort — keep going if a component fails
+
+LOG="${HOME}/.cache/gamerx-shell-start.log"
+mkdir -p "${HOME}/.cache"
+: > "$LOG"
+
+log()  { printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" >> "$LOG"; }
+spawn() {
+    local name="$1"; shift
+    log "spawn $name -> $*"
+    "$@" >> "$LOG" 2>&1 &
+    log "  pid=$!"
+}
+
+log "=== gamerx-shell-start booting ==="
+log "user=$USER  display=$WAYLAND_DISPLAY  xdg_runtime=$XDG_RUNTIME_DIR"
+log "hypr_signature=$HYPRLAND_INSTANCE_SIGNATURE"
+
+# --- 1. Push session env into systemd + dbus ---------------------------------
+# Without this, user services can't see the Wayland socket and cliphist /
+# nm-applet etc. fail to start.
+log "importing env into systemd / dbus"
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP DISPLAY HYPRLAND_INSTANCE_SIGNATURE 2>>"$LOG"
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE 2>>"$LOG"
+
+# --- 2. Polkit agent (must be first — apps depend on it) ---------------------
+if [[ -x /usr/lib/polkit-kde-authentication-agent-1 ]]; then
+    spawn polkit-kde /usr/lib/polkit-kde-authentication-agent-1
+elif [[ -x /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]]; then
+    spawn polkit-gnome /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+fi
+
+# --- 3. Wallpaper engine -----------------------------------------------------
+if command -v swww-daemon &>/dev/null; then
+    spawn swww-daemon swww-daemon
+    # Wait up to 3s for the daemon socket
+    for i in 1 2 3 4 5 6; do
+        if swww query &>/dev/null; then break; fi
+        sleep 0.5
+    done
+    WALLPAPER="$(gamerx-theme get wallpaper 2>/dev/null || true)"
+    [[ -z "$WALLPAPER" || ! -f "$WALLPAPER" ]] && WALLPAPER=/usr/share/gamerx/wallpapers/default/01-aurora-preview-1920x1080.png
+    if [[ -f "$WALLPAPER" ]]; then
+        log "setting wallpaper $WALLPAPER"
+        swww img "$WALLPAPER" --transition-type any --transition-duration 1.5 >>"$LOG" 2>&1
+    else
+        log "WARN no wallpaper found"
+    fi
+fi
+
+# --- 4. Bar/shell layer ------------------------------------------------------
+# Try Quickshell first (preferred). If it crashes (Qt ABI mismatch with stock
+# Arch packages is a common issue), fall back to Waybar so the user always sees
+# a desktop.
+QS_OK=0
+if command -v qs &>/dev/null && [[ -f /usr/share/gamerx-shell/quickshell/shell.qml ]]; then
+    log "trying quickshell"
+    qs -p /usr/share/gamerx-shell/quickshell >> "$LOG" 2>&1 &
+    QS_PID=$!
+    log "  quickshell pid=$QS_PID"
+    sleep 2
+    if kill -0 "$QS_PID" 2>/dev/null; then
+        QS_OK=1
+        log "  quickshell still alive after 2s — using it"
+    else
+        log "  quickshell exited within 2s — falling back to waybar"
+    fi
+fi
+
+if (( QS_OK == 0 )) && command -v waybar &>/dev/null; then
+    spawn waybar waybar
+fi
+
+# --- 5. Notification daemon --------------------------------------------------
+if command -v swaync &>/dev/null; then
+    spawn swaync swaync
+fi
+
+# --- 6. Idle handling --------------------------------------------------------
+if command -v hypridle &>/dev/null; then
+    spawn hypridle hypridle
+fi
+
+# --- 7. Clipboard history ----------------------------------------------------
+if command -v wl-paste &>/dev/null && command -v cliphist &>/dev/null; then
+    log "starting cliphist watchers"
+    wl-paste --type text  --watch cliphist store >>"$LOG" 2>&1 &
+    wl-paste --type image --watch cliphist store >>"$LOG" 2>&1 &
+fi
+
+# --- 8. Network applet -------------------------------------------------------
+if command -v nm-applet &>/dev/null; then
+    spawn nm-applet nm-applet --indicator
+fi
+
+# --- 9. Aria (Aria edition only) --------------------------------------------
+systemctl --user start aria.service 2>/dev/null || true
+
+# --- 10. Live-ISO mode: launch Calamares ------------------------------------
+if [[ -f /etc/gamerx-live ]]; then
+    log "live ISO detected, scheduling welcome + Calamares"
+    (
+        sleep 4
+        notify-send -i system-software-install \
+            "Welcome to GamerX OS Live" \
+            "The installer will open in a moment." 2>>"$LOG"
+        sleep 3
+        if command -v calamares &>/dev/null; then
+            log "launching calamares"
+            # Live user has wheel NOPASSWD sudo, so this works without pkexec.
+            # `dbus-launch` keeps env clean if calamares forks a Qt session.
+            sudo -E calamares >> "$LOG" 2>&1
+            log "calamares exited"
+        else
+            log "ERROR calamares binary not found"
+        fi
+    ) &
+fi
+
+# --- 11. First-run welcome (installed system only) --------------------------
+if [[ ! -f /etc/gamerx-live && ! -f "${HOME}/.config/gamerx/welcome.done" ]]; then
+    if command -v gamerx-welcome &>/dev/null; then
+        spawn gamerx-welcome gamerx-welcome --first-run
+    fi
+fi
+
+log "=== gamerx-shell-start finished initial dispatch ==="
+exit 0
