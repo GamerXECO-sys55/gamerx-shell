@@ -1,0 +1,60 @@
+/* GamerX OS · walker — grid style */
+@define-color bg        #11162A;
+@define-color surface   #2A3158;
+@define-color fg        #E6EAF8;
+@define-color fg-dim    #8A93B8;
+@define-color accent    #7C3AED;
+@define-color highlight #FF2EC4;
+@define-color border    #2A3158;
+
+* {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  color: @fg;
+}
+
+#window {
+  background: alpha(@bg, 0.92);
+  border: 1px solid @border;
+  border-radius: 18px;
+  box-shadow: 0 28px 72px alpha(black, 0.7);
+}
+
+#search {
+  background: transparent;
+  border-bottom: 1px solid @border;
+  padding: 22px 28px;
+  font-size: 20px;
+  font-weight: 600;
+  color: @fg;
+  caret-color: @highlight;
+}
+
+#list {
+  padding: 18px;
+  background: transparent;
+}
+
+#list row {
+  padding: 16px 12px;
+  margin: 6px;
+  border-radius: 12px;
+  background: alpha(@surface, 0.4);
+  min-width: 100px;
+  min-height: 100px;
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#list row:hover {
+  background: alpha(@accent, 0.30);
+  transform: scale(1.04);
+}
+
+#list row:selected {
+  background: alpha(@highlight, 0.30);
+  border: 1px solid @highlight;
+}
+
+#list row image { -gtk-icon-effect: none; min-width: 48px; }
+#list row label.title { font-weight: 600; font-size: 12px; }
+#list row label.subtitle { color: @fg-dim; font-size: 10px; }

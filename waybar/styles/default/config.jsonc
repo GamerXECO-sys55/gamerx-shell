@@ -1,0 +1,117 @@
+// GamerX OS · Waybar default style
+// Top bar, modern duotone, hover-activated reveals.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 38,
+  "spacing": 6,
+  "margin-top": 6,
+  "margin-left": 12,
+  "margin-right": 12,
+  "reload_style_on_change": true,
+
+  "modules-left":   ["custom/launcher", "hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right":  ["tray", "custom/aria", "wireplumber", "network", "battery", "custom/power"],
+
+  "custom/launcher": {
+    "format": "",
+    "tooltip": false,
+    "on-click": "walker"
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "0",
+      "active": "●",
+      "default": "○",
+      "urgent": "!"
+    },
+    "on-click": "activate",
+    "sort-by-number": true
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": "🦊 $1",
+      "(.*) - Zen Browser": " $1",
+      "(.*) - Visual Studio Code": " $1",
+      "(.*) - ghostty": "  $1"
+    },
+    "separate-outputs": true
+  },
+
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%a %d %b · %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "right",
+      "format": {
+        "months":     "<span color='#7C3AED'><b>{}</b></span>",
+        "days":       "<span color='#E6EAF8'>{}</span>",
+        "weeks":      "<span color='#8A93B8'>W{}</span>",
+        "weekdays":   "<span color='#00D9FF'><b>{}</b></span>",
+        "today":      "<span color='#FF2EC4'><b><u>{}</u></b></span>"
+      }
+    }
+  },
+
+  "tray": {
+    "icon-size": 18,
+    "spacing":   8
+  },
+
+  "custom/aria": {
+    "format": "{}",
+    "exec": "qs ipc call aria getStatusIcon 2>/dev/null || echo 'inactive'",
+    "interval": 5,
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "qs ipc call aria toggleOverlay"
+  },
+
+  "wireplumber": {
+    "format":         "{volume}% {icon}",
+    "format-muted":   "muted ",
+    "format-icons":   ["", "", ""],
+    "on-click":       "pamixer -t",
+    "on-click-right": "pavucontrol",
+    "scroll-step":    5
+  },
+
+  "network": {
+    "format-wifi":         "{essid} ({signalStrength}%) ",
+    "format-ethernet":     "{ipaddr} ",
+    "format-disconnected": "offline ",
+    "tooltip-format":      "{ifname}: {ipaddr}/{cidr}",
+    "on-click":            "nm-connection-editor"
+  },
+
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format":          "{capacity}% {icon}",
+    "format-charging": "{capacity}% ",
+    "format-plugged":  "{capacity}% ",
+    "format-icons":    ["", "", "", "", ""]
+  },
+
+  "custom/power": {
+    "format":  "",
+    "tooltip": false,
+    "on-click": "qs ipc call gamerx togglePowerMenu"
+  }
+}

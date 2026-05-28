@@ -1,0 +1,143 @@
+/* GamerX OS · swaync default style */
+@define-color bg        #11162A;
+@define-color bg-alt    #1B2241;
+@define-color surface   #1B2241;
+@define-color surface-2 #2A3158;
+@define-color fg        #E6EAF8;
+@define-color fg-dim    #8A93B8;
+@define-color accent    #7C3AED;
+@define-color accent-alt #00D9FF;
+@define-color highlight #FF2EC4;
+@define-color border    #2A3158;
+@define-color warn      #FFB347;
+@define-color error     #FF5C7C;
+
+* {
+  font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 13px;
+  color: @fg;
+}
+
+/* ------ Notifications popups ------ */
+.notification-row {
+  background: transparent;
+  margin: 4px;
+  padding: 0;
+}
+
+.notification {
+  background: alpha(@bg, 0.9);
+  border: 1px solid @border;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 4px 8px;
+  box-shadow: 0 8px 24px alpha(black, 0.5);
+}
+
+.notification-content {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.summary {
+  font-weight: 700;
+  color: @fg;
+  font-size: 14px;
+}
+
+.body {
+  color: @fg-dim;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.notification.critical {
+  border-left: 3px solid @error;
+}
+.notification.normal {
+  border-left: 3px solid @accent;
+}
+.notification.low {
+  border-left: 3px solid @fg-dim;
+}
+
+.close-button {
+  background: alpha(@error, 0.2);
+  color: @fg;
+  border-radius: 8px;
+  margin: 6px;
+  padding: 4px 8px;
+}
+.close-button:hover { background: alpha(@error, 0.4); }
+
+.notification-default-action,
+.notification-action {
+  background: alpha(@surface-2, 0.5);
+  border-radius: 8px;
+  margin: 4px;
+  padding: 6px 10px;
+  color: @fg;
+}
+.notification-default-action:hover,
+.notification-action:hover { background: alpha(@accent, 0.30); }
+
+.image, .body-image {
+  border-radius: 8px;
+}
+
+/* ------ Control center ------ */
+.control-center {
+  background: alpha(@bg, 0.85);
+  border: 1px solid @border;
+  border-radius: 16px;
+  margin: 0;
+  padding: 12px;
+  box-shadow: 0 24px 64px alpha(black, 0.6);
+}
+
+.widget-title { color: @fg; font-weight: 700; font-size: 16px; padding: 6px 4px; }
+.widget-title button {
+  background: alpha(@accent, 0.15);
+  color: @fg;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.widget-title button:hover { background: alpha(@accent, 0.30); }
+
+.widget-dnd {
+  background: alpha(@surface, 0.5);
+  border-radius: 12px;
+  margin: 4px 0;
+  padding: 10px 12px;
+}
+.widget-dnd > switch {
+  background: @surface-2;
+  border-radius: 10px;
+}
+.widget-dnd > switch:checked { background: @accent; }
+
+.widget-volume,
+.widget-backlight {
+  background: alpha(@surface, 0.5);
+  border-radius: 12px;
+  margin: 4px 0;
+  padding: 10px 12px;
+}
+
+scale trough { background: @surface-2; min-height: 4px; border-radius: 4px; }
+scale trough highlight { background: @accent; border-radius: 4px; }
+scale slider { background: @fg; border-radius: 50%; min-height: 12px; min-width: 12px; }
+
+.widget-mpris {
+  background: alpha(@surface, 0.5);
+  border-radius: 12px;
+  margin: 4px 0;
+  padding: 12px;
+}
+
+.notification-group {
+  background: transparent;
+  border-radius: 8px;
+}

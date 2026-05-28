@@ -1,0 +1,39 @@
+# GamerX OS · walker — grid style
+# Mac-launchpad-like icon grid.
+[search]
+placeholder = "Apps"
+
+[ui.window]
+h_align    = "fill"
+v_align    = "fill"
+width      = 0
+height     = 0
+fullscreen = true
+class      = "walker walker-grid"
+
+[ui.list]
+orientation = "horizontal"
+columns     = 8
+single_click = true
+max_height   = 600
+
+[ui.icons]
+size = 56
+theme = "Papirus-Dark"
+
+[builtins.applications]
+hidden = false
+weight = 5
+
+[builtins.calc]
+hidden = true
+[builtins.clipboard]
+hidden = true
+[builtins.emojis]
+hidden = true
+[builtins.commands]
+hidden = true
+[builtins.runner]
+hidden = true
+[builtins.websearch]
+hidden = true

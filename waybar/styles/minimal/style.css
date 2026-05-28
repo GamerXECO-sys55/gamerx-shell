@@ -1,0 +1,34 @@
+/* GamerX OS · Waybar minimal style */
+@define-color bg        #11162A;
+@define-color fg        #E6EAF8;
+@define-color fg-dim    #8A93B8;
+@define-color accent    #7C3AED;
+
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 11px;
+  min-height: 0;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+window#waybar {
+  background: alpha(@bg, 0.6);
+  color: @fg;
+  border-radius: 10px;
+}
+
+#workspaces button, #clock, #wireplumber, #network, #battery {
+  padding: 0 8px;
+  margin: 2px;
+  color: @fg-dim;
+  border-radius: 6px;
+}
+
+#workspaces button.active {
+  color: @accent;
+  background: transparent;
+}
+
+#clock { color: @fg; font-weight: 600; }

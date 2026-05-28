@@ -1,0 +1,5 @@
+module gamerx
+ThemeLoader   1.0 modules/ThemeLoader.qml
+ControlCenter 1.0 modules/ControlCenter.qml
+PowerMenu     1.0 modules/PowerMenu.qml
+OSD           1.0 modules/OSD.qml
