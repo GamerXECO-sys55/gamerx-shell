@@ -1,0 +1,9 @@
+module qs.services
+singleton Theme    1.0 Theme.qml
+singleton Time     1.0 Time.qml
+singleton Hypr     1.0 Hypr.qml
+singleton Audio    1.0 Audio.qml
+singleton Network  1.0 Network.qml
+singleton Power    1.0 Power.qml
+singleton Apps     1.0 Apps.qml
+singleton Aria     1.0 Aria.qml

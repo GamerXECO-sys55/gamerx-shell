@@ -1,0 +1,11 @@
+module qs.modules.bar
+Bar              1.0 Bar.qml
+BarLauncher      1.0 BarLauncher.qml
+BarWorkspaces    1.0 BarWorkspaces.qml
+BarWindow        1.0 BarWindow.qml
+BarClock         1.0 BarClock.qml
+BarAria          1.0 BarAria.qml
+BarVolume        1.0 BarVolume.qml
+BarNetwork       1.0 BarNetwork.qml
+BarBattery       1.0 BarBattery.qml
+BarPower         1.0 BarPower.qml

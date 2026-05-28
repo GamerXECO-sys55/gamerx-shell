@@ -1,72 +1,58 @@
 // GamerX OS · Quickshell entry point
-// Loads the live theme JSON, exposes IPC, and instantiates the overlays.
 //
-// Run with:
-//   qs -p /usr/share/gamerx-shell
+// Run with:  qs -p /usr/share/gamerx-shell/quickshell
+//
+// Architecture (modeled after Caelestia + DankMaterialShell):
+//   services/    singleton state managers (Theme, Time, Hypr, Audio, ...)
+//   components/  reusable QML primitives (Anim, StyledRect, MaterialIcon, ...)
+//   modules/     shipped UI (bar, launcher, powermenu, notifications, osd, controlcenter)
 //
 // IPC handles (callable via `qs ipc call gamerx <handle>`):
-//   toggleControlCenter
-//   toggleNotifications
-//   togglePowerMenu
-//   showOSD <kind> <value>     — kind: volume | brightness
-//
-// Aria edition adds an `aria` IPC target via a separate QML module.
+//   toggleLauncher          show/hide app launcher (also bound to SUPER+D)
+//   toggleControlCenter     slide-in control center (SUPER+A)
+//   togglePowerMenu         center-screen power menu (SUPER+SHIFT+P)
+//   showOSD <kind> <value>  briefly flash an on-screen value
+//   reloadTheme             force-reload theme.json (CLI does this automatically)
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
-import "modules"
+import qs.services
+import qs.modules.bar
+import qs.modules.launcher
+import qs.modules.powermenu
+import qs.modules.controlcenter
+import qs.modules.osd
+import qs.modules.notifications
 
 ShellRoot {
-    id: root
+    id: shell
 
-    // Live theme — populated by themeLoader; modules bind to root.theme.
-    property var theme: ({
-        bg:        "#11162A",
-        bgAlt:     "#1B2241",
-        surface:   "#1B2241",
-        surface2:  "#2A3158",
-        fg:        "#E6EAF8",
-        fgDim:     "#8A93B8",
-        border:    "#2A3158",
-        accent:    "#7C3AED",
-        accentAlt: "#00D9FF",
-        highlight: "#FF2EC4",
-        warn:      "#FFB347",
-        error:     "#FF5C7C",
-        success:   "#5BE3A1",
-        radius:    12,
-        gap:       8,
-        animMs:    220
-    })
+    // Top status bar (per-monitor via Variants)
+    Bar {}
 
-    ThemeLoader { id: themeLoader; onThemeLoaded: root.theme = data }
+    // Notification popups (per-monitor)
+    Notifications {}
 
-    // ---- Overlays ---------------------------------------------------------
-    ControlCenter   { id: controlCenter }
-    PowerMenu       { id: powerMenu }
-    OSD             { id: osd }
+    // Singleton overlays — one instance for the whole shell
+    Launcher      { id: launcher }
+    ControlCenter { id: controlCenter }
+    PowerMenu     { id: powerMenu }
+    OSD           { id: osd }
 
-    // ---- IPC --------------------------------------------------------------
+    // Module IDs exposed to children that need to call them.
+    // Modules use ShellRoot.toggleLauncher() etc. to avoid coupling.
+    function toggleLauncher(): void      { launcher.visible ? launcher.close() : launcher.open() }
+    function toggleControlCenter(): void { controlCenter.visible = !controlCenter.visible }
+    function togglePowerMenu(): void     { powerMenu.visible = !powerMenu.visible }
+    function showOSD(k: string, v: string): void { osd.show(k, v) }
+
+    // CLI bridge
     IpcHandler {
         target: "gamerx"
-
-        function toggleControlCenter(): void {
-            controlCenter.visible = !controlCenter.visible
-        }
-        function toggleNotifications(): void {
-            // We delegate the notification panel to swaync to avoid duplication.
-            // This shortcut just toggles its visibility via D-Bus.
-            Quickshell.execDetached(["swaync-client", "-t", "-sw"])
-        }
-        function togglePowerMenu(): void {
-            powerMenu.visible = !powerMenu.visible
-        }
-        function showOSD(kind: string, value: string): void {
-            osd.show(kind, value)
-        }
-        function reloadTheme(): void {
-            themeLoader.reload()
-        }
+        function toggleLauncher(): void         { shell.toggleLauncher() }
+        function toggleControlCenter(): void    { shell.toggleControlCenter() }
+        function togglePowerMenu(): void        { shell.togglePowerMenu() }
+        function showOSD(kind: string, value: string): void { shell.showOSD(kind, value) }
+        function reloadTheme(): void { /* Theme service watches the file directly */ }
     }
 }
