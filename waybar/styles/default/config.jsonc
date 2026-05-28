@@ -17,7 +17,7 @@
   "custom/launcher": {
     "format": "",
     "tooltip": false,
-    "on-click": "walker"
+    "on-click": "rofi -show drun"
   },
 
   "hyprland/workspaces": {

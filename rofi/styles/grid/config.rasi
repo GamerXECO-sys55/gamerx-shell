@@ -1,0 +1,93 @@
+/* GamerX OS · rofi — grid style
+ * Mac-launchpad-style icon grid, full-screen.
+ * Run with: rofi -show drun -theme grid
+ */
+configuration {
+    modi:                "drun";
+    show-icons:          true;
+    icon-theme:          "Papirus-Dark";
+    drun-display-format: "{name}";
+    display-drun:        "";
+    matching:            "fuzzy";
+    sort:                true;
+    sorting-method:      "fzf";
+}
+
+* {
+    bg:        #11162A;
+    surface:   #2A3158;
+    fg:        #E6EAF8;
+    fg-dim:    #8A93B8;
+    accent:    #7C3AED;
+    highlight: #FF2EC4;
+    border:    #2A3158;
+
+    background-color:  transparent;
+    text-color:        @fg;
+    font:              "Inter 11";
+}
+
+window {
+    fullscreen:        true;
+    background-color:  rgba(17, 22, 42, 0.92);
+    padding:           80px 120px;
+}
+
+mainbox {
+    children:  [ inputbar, listview ];
+    spacing:   28px;
+}
+
+inputbar {
+    padding:           14px 24px;
+    background-color:  rgba(27, 34, 65, 0.85);
+    border:            1px;
+    border-color:      @border;
+    border-radius:     14px;
+    children:          [ prompt, entry ];
+}
+prompt {
+    text-color:        @accent;
+    padding:           0 12px 0 0;
+    font:              "JetBrainsMono Nerd Font 18";
+}
+entry {
+    placeholder:       "Apps";
+    placeholder-color: @fg-dim;
+    text-color:        @fg;
+    font:              "Inter 16";
+}
+
+listview {
+    columns:           8;
+    lines:             5;
+    cycle:             true;
+    dynamic:           true;
+    scrollbar:         false;
+    spacing:           18px;
+    fixed-columns:     true;
+    layout:            vertical;
+}
+
+element {
+    orientation:       vertical;
+    padding:           14px 8px;
+    border-radius:     12px;
+    background-color:  rgba(42, 49, 88, 0.40);
+    children:          [ element-icon, element-text ];
+}
+element selected {
+    background-color:  rgba(255, 46, 196, 0.30);
+    border:            1px;
+    border-color:      @highlight;
+}
+element-icon {
+    size:              56px;
+    horizontal-align:  0.5;
+    background-color:  transparent;
+}
+element-text {
+    horizontal-align:  0.5;
+    vertical-align:    0.5;
+    padding:           8px 0 0 0;
+}
