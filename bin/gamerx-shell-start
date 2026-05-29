@@ -80,7 +80,16 @@ if command -v qs &>/dev/null && [[ -f /usr/share/gamerx-shell/quickshell/shell.q
 fi
 
 if (( QS_OK == 0 )) && command -v waybar &>/dev/null; then
-    spawn waybar waybar
+    # Waybar reads ~/.config/waybar/config.jsonc by default — we symlink it
+    # in customize_airootfs. Pass explicit paths anyway as a safety net.
+    if [[ -f "${HOME}/.config/waybar/config.jsonc" ]]; then
+        spawn waybar waybar
+    elif [[ -f /usr/share/gamerx-shell/waybar/styles/default/config.jsonc ]]; then
+        spawn waybar waybar -c /usr/share/gamerx-shell/waybar/styles/default/config.jsonc \
+                             -s /usr/share/gamerx-shell/waybar/styles/default/style.css
+    else
+        spawn waybar waybar
+    fi
 fi
 
 # --- 5. Notification daemon --------------------------------------------------
