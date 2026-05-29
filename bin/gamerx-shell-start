@@ -117,19 +117,30 @@ fi
 # --- 9. Aria (Aria edition only) --------------------------------------------
 systemctl --user start aria.service 2>/dev/null || true
 
-# --- 10. Live-ISO mode: launch Calamares ------------------------------------
+# --- 10. Live-ISO mode: launch Calamares + a terminal ----------------------
 if [[ -f /etc/gamerx-live ]]; then
-    log "live ISO detected, scheduling welcome + Calamares"
+    log "live ISO detected, scheduling welcome + terminal + Calamares"
     (
-        sleep 4
+        sleep 3
+        # Auto-spawn a terminal so the user can run gamerx-collect-logs
+        # without needing a keybind to work (handy in QEMU where shortcuts
+        # are intercepted by the host).
+        for term in ghostty kitty alacritty foot xterm; do
+            if command -v "$term" &>/dev/null; then
+                log "auto-launching terminal: $term"
+                "$term" >>"$LOG" 2>&1 &
+                break
+            fi
+        done
+
+        sleep 2
         notify-send -i system-software-install \
             "Welcome to GamerX OS Live" \
-            "The installer will open in a moment." 2>>"$LOG"
+            "The installer will open in a moment. A terminal is open for diagnostics — run 'gamerx-collect-logs' to bundle logs." 2>>"$LOG"
+
         sleep 3
         if command -v calamares &>/dev/null; then
             log "launching calamares"
-            # Live user has wheel NOPASSWD sudo, so this works without pkexec.
-            # `dbus-launch` keeps env clean if calamares forks a Qt session.
             sudo -E calamares >> "$LOG" 2>&1
             log "calamares exited"
         else
