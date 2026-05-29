@@ -12,7 +12,7 @@
 
   "modules-left":   ["custom/launcher", "hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right":  ["tray", "custom/aria", "wireplumber", "network", "battery", "custom/power"],
+  "modules-right":  ["tray", "wireplumber", "network", "battery", "custom/power"],
 
   "custom/launcher": {
     "format": "",
@@ -79,7 +79,6 @@
     "format": "{}",
     "exec": "qs ipc call aria getStatusIcon 2>/dev/null || echo 'inactive'",
     "interval": 5,
-    "return-type": "json",
     "tooltip": true,
     "on-click": "qs ipc call aria toggleOverlay"
   },

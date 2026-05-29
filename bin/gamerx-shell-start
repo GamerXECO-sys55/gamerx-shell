@@ -98,7 +98,9 @@ if command -v swaync &>/dev/null; then
 fi
 
 # --- 6. Idle handling --------------------------------------------------------
-if command -v hypridle &>/dev/null; then
+# Skip on live ISO — hypridle crashes when it can't find a config.
+# On installed system the user has /etc/skel/.config/hypr/hypridle.conf.
+if [[ ! -f /etc/gamerx-live ]] && command -v hypridle &>/dev/null; then
     spawn hypridle hypridle
 fi
 

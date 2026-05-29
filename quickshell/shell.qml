@@ -16,6 +16,7 @@
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.services
 import qs.modules.bar
 import qs.modules.launcher
